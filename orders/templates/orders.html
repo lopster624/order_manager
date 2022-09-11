@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Активные заказы.
+{% endblock %}
+{% block content %}
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link type="text/css" rel="StyleSheet" href="https://bootstraptema.ru/plugins/2016/shieldui/style.css"/>
+    <script src="https://bootstraptema.ru/plugins/jquery/jquery-1.11.3.min.js"></script>
+    <script src="https://bootstraptema.ru/plugins/2016/shieldui/script.js"></script>
+
+
+    <nav class="navbar" style="background-color: #76b7e5;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                Каналсервис
+            </a>
+        </div>
+    </nav>
+
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div id="chart" class="col-6">
+                <script>
+                    $(function () {
+                        $("#chart").shieldChart({
+                            theme: "light",
+                            seriesSettings: {
+                                line: {
+                                    dataPointText: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            chartLegend: {
+                                align: 'center',
+                                borderRadius: 2,
+                                borderWidth: 2,
+                                verticalAlign: 'top'
+                            },
+                            exportOptions: {
+                                image: true,
+                                print: true
+                            },
+                            axisX: {
+                                title: {
+                                    text: "Дата"
+                                },
+                                categoricalValues: [{% for date in dates %}'{{ date|date:"d.m.Y" }}', {% endfor %}]
+                            },
+                            axisY: {
+                                title: {
+                                    text: "Стоимость, $"
+                                }
+                            },
+                            primaryHeader: {
+                                text: ""
+                            },
+                            dataSeries: [{
+                                seriesType: 'line',
+                                collectionAlias: 'Заказы',
+                                data: [{% for order in orders %}{{ order.dollar_cost }}, {% endfor %}]
+                            }]
+                        });
+                    });
+                </script><!-- /.График -->
+
+            </div>
+            <div class="col-5">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">TOTAL: {{ total_price }}</h5>
+
+                    </div>
+                </div>
+                <table class="table table-bordered mt-4">
+                    <thead>
+                    <tr>
+                        <th scope="col">№</th>
+                        <td scope="col">Заказ №</td>
+                        <td scope="col">Стоимость, $</td>
+                        <td scope="col">Стоимость, руб</td>
+                        <td scope="col">Срок поставки</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td scope="row">
+                                <h5 class="card-title">
+                                    {{ order.id }}
+                                </h5>
+                            </td>
+                            <td scope="row" class="text-nowrap">
+                                {{ order.number }}
+                            </td>
+                            <td scope="row">
+                                {{ order.dollar_cost }}
+                            </td>
+                            <td scope="row">
+                                {{ order.ruble_cost }}
+                            </td>
+                            <td scope="row">
+                                {{ order.delivery_time|date:"d.m.Y" }}
+                            </td>
+                            {% empty %}
+                        <tr class="text-center">
+                            <td colspan="12">
+                                Нет активных заказов.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
